@@ -2,7 +2,6 @@
 norm_cfg = dict(type='SyncBN', requires_grad=True)
 model = dict(
     type='EncoderDecoder',
-    pretrained='open-mmlab://resnet50_v1c',
     backbone=dict(
         type='ResNetV1c',
         depth=50,
@@ -13,7 +12,10 @@ model = dict(
         norm_cfg=norm_cfg,
         norm_eval=False,
         style='pytorch',
-        contract_dilation=True),
+        contract_dilation=True,
+        init_cfg=dict(
+            type='Pretrained',
+            checkpoint='open-mmlab://resnet50_v1c')),
     decode_head=dict(
         type='DepthwiseSeparableASPPHead',
         in_channels=2048,

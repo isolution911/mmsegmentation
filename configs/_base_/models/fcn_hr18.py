@@ -2,7 +2,6 @@
 norm_cfg = dict(type='SyncBN', requires_grad=True)
 model = dict(
     type='EncoderDecoder',
-    pretrained='open-mmlab://msra/hrnetv2_w18',
     backbone=dict(
         type='HRNet',
         norm_cfg=norm_cfg,
@@ -31,7 +30,10 @@ model = dict(
                 num_branches=4,
                 block='BASIC',
                 num_blocks=(4, 4, 4, 4),
-                num_channels=(18, 36, 72, 144)))),
+                num_channels=(18, 36, 72, 144))),
+        init_cfg=dict(
+            type='Pretrained',
+            checkpoint='open-mmlab://msra/hrnetv2_w18')),
     decode_head=dict(
         type='FCNHead',
         in_channels=[18, 36, 72, 144],
