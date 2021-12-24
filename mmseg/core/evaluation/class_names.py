@@ -52,6 +52,13 @@ def voc_classes():
     ]
 
 
+def water_classes():
+    """Water class names for external use."""
+    return [
+        'background', 'water'
+    ]
+
+
 def cityscapes_palette():
     """Cityscapes palette for external use."""
     return [[128, 64, 128], [244, 35, 232], [70, 70, 70], [102, 102, 156],
@@ -112,10 +119,16 @@ def voc_palette():
             [128, 64, 0], [0, 192, 0], [128, 192, 0], [0, 64, 128]]
 
 
+def water_palette():
+    """Water palette for external use."""
+    return [[0, 0, 0], [0, 0, 255]]
+
+
 dataset_aliases = {
     'cityscapes': ['cityscapes'],
     'ade': ['ade', 'ade20k'],
-    'voc': ['voc', 'pascal_voc', 'voc12', 'voc12aug']
+    'voc': ['voc', 'pascal_voc', 'voc12', 'voc12aug'],
+    'water': ['Water']
 }
 
 
