@@ -114,6 +114,10 @@ data
 *.log.json
 work_dirs/
 mmseg/.mim
+demo/images
+demo/videos
+inputs
+outputs
 
 # Pytorch
 *.pth
