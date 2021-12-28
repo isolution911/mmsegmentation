@@ -19,6 +19,9 @@ def parse_args():
     return args
 
 
+def ndwi2mask(src_image_nirrbg, threshold=0.5):
+    pass
+
 def main():
     args = parse_args()
     dataset_path = args.dataset_path
@@ -32,17 +35,15 @@ def main():
     mmcv.mkdir_or_exist(osp.join(out_dir, 'img_dir'))
     mmcv.mkdir_or_exist(osp.join(out_dir, 'img_dir', 'train'))
     mmcv.mkdir_or_exist(osp.join(out_dir, 'img_dir', 'val'))
-    # mmcv.mkdir_or_exist(osp.join(out_dir, 'img_nirrgb_dir'))
-    # mmcv.mkdir_or_exist(osp.join(out_dir, 'img_nirrgb_dir', 'train'))
-    # mmcv.mkdir_or_exist(osp.join(out_dir, 'img_nirrgb_dir', 'val'))
+    mmcv.mkdir_or_exist(osp.join(out_dir, 'img_nirrgb_dir'))
+    mmcv.mkdir_or_exist(osp.join(out_dir, 'img_nirrgb_dir', 'train'))
+    mmcv.mkdir_or_exist(osp.join(out_dir, 'img_nirrgb_dir', 'val'))
     mmcv.mkdir_or_exist(osp.join(out_dir, 'ann_dir'))
     mmcv.mkdir_or_exist(osp.join(out_dir, 'ann_dir', 'train'))
     mmcv.mkdir_or_exist(osp.join(out_dir, 'ann_dir', 'val'))
 
     dataset_path_list = os.listdir(dataset_path)
-    # for name in ['images_RGB', 'images_NirRGB', 'annotations']:
-    #     assert name in dataset_path_list, f'{name} in not in {dataset_path}'
-    for name in ['images_RGB', 'annotations']:
+    for name in ['images_RGB', 'images_NirRGB']:
         assert name in dataset_path_list, f'{name} in not in {dataset_path}'
 
     # meta
@@ -65,11 +66,10 @@ def main():
     for image in train_list:
         image_id = osp.splitext(image)[0]
         src_image_path = osp.join(dataset_path, 'images_RGB', image)
-        # src_image_nirrgb_path = osp.join(dataset_path, 'images_NirRGB', image)
-        src_mask_path = osp.join(dataset_path, 'annotations', image)
+        src_image_nirrgb_path = osp.join(dataset_path, 'images_NirRGB', image)
         src_image = cv2.imread(src_image_path, -1)
-        # src_image_nirrgb = cv2.imread(src_image_nirrgb_path, -1)
-        src_mask = cv2.imread(src_mask_path, -1)
+        src_image_nirrgb = cv2.imread(src_image_nirrgb_path, -1)
+        src_mask = ndwi2mask(src_image_nirrgb, threshold=0.7)
 
         height, width, _ = src_image.shape
         for y in range(0, height, size - overlap):
@@ -86,25 +86,24 @@ def main():
                     x_end = width
                 print(f'cropping patch ({y_begin}, {y_end}, {x_begin}, {x_end}) from {image_id} ...')
                 image_patch = src_image[y_begin:y_end, x_begin:x_end, :]
-                # image_nirrgb_patch = src_image_nirrgb[y_begin:y_end, x_begin:x_end, :]
+                image_nirrgb_patch = src_image_nirrgb[y_begin:y_end, x_begin:x_end, :]
                 mask_patch = src_mask[y_begin:y_end, x_begin:x_end]
                 patch_id = image_id + f'__{y_begin}_{y_end}_{x_begin}_{x_end}'
                 dst_image_path = osp.join(out_dir, 'img_dir', 'train', patch_id + '.jpg')
-                # dst_image_nirrgb_path = osp.join(out_dir, 'img_nirrgb_dir', 'train', patch_id + '.png')
+                dst_image_nirrgb_path = osp.join(out_dir, 'img_nirrgb_dir', 'train', patch_id + '.png')
                 dst_label_path = osp.join(out_dir, 'ann_dir', 'train', patch_id + '.png')
                 cv2.imwrite(dst_image_path, image_patch)
-                # cv2.imwrite(dst_image_nirrgb_path, image_nirrgb_patch)
+                cv2.imwrite(dst_image_nirrgb_path, image_nirrgb_patch)
                 cv2.imwrite(dst_label_path, mask_patch)
 
     # val
     for image in val_list:
         image_id = osp.splitext(image)[0]
         src_image_path = osp.join(dataset_path, 'images_RGB', image)
-        # src_image_nirrgb_path = osp.join(dataset_path, 'images_NirRGB', image)
-        src_mask_path = osp.join(dataset_path, 'annotations', image)
+        src_image_nirrgb_path = osp.join(dataset_path, 'images_NirRGB', image)
         src_image = cv2.imread(src_image_path, -1)
-        # src_image_nirrgb = cv2.imread(src_image_nirrgb_path, -1)
-        src_mask = cv2.imread(src_mask_path, -1)
+        src_image_nirrgb = cv2.imread(src_image_nirrgb_path, -1)
+        src_mask = ndwi2mask(src_image_nirrgb, threshold=0.7)
 
         height, width, _ = src_image.shape
         for y in range(0, height, size - overlap):
@@ -121,14 +120,14 @@ def main():
                     x_end = width
                 print(f'cropping patch ({y_begin}, {y_end}, {x_begin}, {x_end}) from {image_id} ...')
                 image_patch = src_image[y_begin:y_end, x_begin:x_end, :]
-                # image_nirrgb_patch = src_image_nirrgb[y_begin:y_end, x_begin:x_end, :]
+                image_nirrgb_patch = src_image_nirrgb[y_begin:y_end, x_begin:x_end, :]
                 mask_patch = src_mask[y_begin:y_end, x_begin:x_end]
                 patch_id = image_id + f'__{y_begin}_{y_end}_{x_begin}_{x_end}'
                 dst_image_path = osp.join(out_dir, 'img_dir', 'val', patch_id + '.jpg')
-                # dst_image_nirrgb_path = osp.join(out_dir, 'img_nirrgb_dir', 'val', patch_id + '.png')
+                dst_image_nirrgb_path = osp.join(out_dir, 'img_nirrgb_dir', 'val', patch_id + '.png')
                 dst_label_path = osp.join(out_dir, 'ann_dir', 'val', patch_id + '.png')
                 cv2.imwrite(dst_image_path, image_patch)
-                # cv2.imwrite(dst_image_nirrgb_path, image_nirrgb_patch)
+                cv2.imwrite(dst_image_nirrgb_path, image_nirrgb_patch)
                 cv2.imwrite(dst_label_path, mask_patch)
 
     print('Done!')

@@ -46,8 +46,7 @@ class WaterDataset(CustomDataset):
             basename = osp.splitext(osp.basename(filename))[0]
 
             png_filename = osp.join(imgfile_prefix, f'{basename}.png')
-
-            # The  index range of official requirement is from 0 to 6.
+            
             output = Image.fromarray(result.astype(np.uint8))
             output.save(png_filename)
             result_files.append(png_filename)
