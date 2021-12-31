@@ -236,9 +236,9 @@ def mean_fscore(results,
      Returns:
         dict[str, float | ndarray]: Default metrics.
             <aAcc> float: Overall accuracy on all images.
-            <Fscore> ndarray: Per category recall, shape (num_classes, ).
+            <Fscore> ndarray: Per category f-score, shape (num_classes, ).
             <Precision> ndarray: Per category precision, shape (num_classes, ).
-            <Recall> ndarray: Per category f-score, shape (num_classes, ).
+            <Recall> ndarray: Per category recall, shape (num_classes, ).
     """
     fscore_result = eval_metrics(
         results=results,
