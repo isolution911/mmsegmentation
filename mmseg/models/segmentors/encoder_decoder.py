@@ -282,3 +282,39 @@ class EncoderDecoder(BaseSegmentor):
         # unravel batch dim
         seg_pred = list(seg_pred)
         return seg_pred
+
+    def simple_pseudo_label(self, img, img_meta, threshold=0.5, rescale=True):
+        """Simple pseudo label generation with single image."""
+        seg_logit = self.inference(img, img_meta, rescale)
+        batch_size, num_classes, height, width = seg_logit.size()
+        pseudo_label = 255 * seg_logit.new_ones((batch_size, height, width), dtype=torch.uint8)
+        for i in range(num_classes):
+            indices = seg_logit[:, i, :, :] >= threshold
+            pseudo_label[indices] = i
+        pseudo_label = pseudo_label.cpu().numpy()
+        # unravel batch dim
+        pseudo_label = list(pseudo_label)
+        return pseudo_label
+
+    def aug_pseudo_label(self, imgs, img_metas, threshold=0.5, rescale=True):
+        """Pseudo label generation with augmentations.
+
+        Only rescale=True is supported.
+        """
+        # aug_test rescale all imgs back to ori_shape for now
+        assert rescale
+        # to save memory, we get augmented seg logit inplace
+        seg_logit = self.inference(imgs[0], img_metas[0], rescale)
+        for i in range(1, len(imgs)):
+            cur_seg_logit = self.inference(imgs[i], img_metas[i], rescale)
+            seg_logit += cur_seg_logit
+        seg_logit /= len(imgs)
+        batch_size, num_classes, height, width = seg_logit.size()
+        pseudo_label = 255 * seg_logit.new_ones((batch_size, height, width), dtype=torch.uint8)
+        for i in range(num_classes):
+            indices = seg_logit[:, i, :, :] >= threshold
+            pseudo_label[indices] = i
+        pseudo_label = pseudo_label.cpu().numpy()
+        # unravel batch dim
+        pseudo_label = list(pseudo_label)
+        return pseudo_label

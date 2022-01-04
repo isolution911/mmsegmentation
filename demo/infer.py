@@ -3,7 +3,7 @@ import os
 import mmcv
 from argparse import ArgumentParser
 
-from mmseg.apis import inference_segmentor, init_segmentor, show_result_pyplot
+from mmseg.apis import inference_segmentor, init_segmentor, show_result_pyplot, generate_pseudo_label
 from mmseg.core.evaluation import get_palette
 
 
@@ -14,7 +14,7 @@ def main():
     parser.add_argument('-i', '--input_dir', help='Directory of input image(s)')
     parser.add_argument('-o', '--output_dir', help='Directory of output image(s)')
     parser.add_argument(
-        '--device', default='cuda:0', help='Device used for inference')
+        '--device', default='cuda:9', help='Device used for inference')
     parser.add_argument(
         '--palette',
         default='Water',
@@ -36,6 +36,7 @@ def main():
         dst_image_path = os.path.join(args.output_dir, image)
         print(f'inferring {src_image_path} to {dst_image_path} ...')
         result = inference_segmentor(model, src_image_path)
+        # result = generate_pseudo_label(model, src_image_path, threshold=0.9)
         model.show_result(
             img=src_image_path,
             result=result,

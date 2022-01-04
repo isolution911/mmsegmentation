@@ -59,6 +59,16 @@ class BaseSegmentor(BaseModule, metaclass=ABCMeta):
         """Placeholder for augmentation test."""
         pass
 
+    @abstractmethod
+    def simple_pseudo_label(self, img, img_meta, threshold, **kwargs):
+        """Placeholder for single image pseudo label generation."""
+        pass
+
+    @abstractmethod
+    def aug_pseudo_label(self, imgs, img_metas, threshold, **kwargs):
+        """Placeholder for augmentation pseudo label generation."""
+        pass
+
     def forward_test(self, imgs, img_metas, **kwargs):
         """
         Args:
@@ -284,3 +294,43 @@ class BaseSegmentor(BaseModule, metaclass=ABCMeta):
             warnings.warn('show==False and out_file is not specified, only '
                           'result image will be returned')
             return img
+
+    @auto_fp16(apply_to=('img',))
+    def generate_pseudo_label(self, img, img_metas, threshold=0.5, **kwargs):
+        """Calls either :func:`simple_pseudo_label` or :func:`aug_pseudo_label` depending
+        on whether to use data augmentation.
+
+        Args:
+            img (List[Tensor]): the outer list indicates test-time
+                augmentations and inner Tensor should have a shape NxCxHxW,
+                which contains all images in the batch.
+            img_metas (List[List[dict]]): the outer list indicates test-time
+                augs (multiscale, flip, etc.) and the inner list indicates
+                images in a batch.
+            threshold (float): the threshold to generate pseudo label.
+        """
+        for var, name in [(img, 'img'), (img_metas, 'img_metas')]:
+            if not isinstance(var, list):
+                raise TypeError(f'{name} must be a list, but got '
+                                f'{type(var)}')
+
+        num_augs = len(img)
+        if num_augs != len(img_metas):
+            raise ValueError(f'num of augmentations ({len(img)}) != '
+                             f'num of image meta ({len(img_metas)})')
+        # all images in the same aug batch all of the same ori_shape and pad
+        # shape
+        for img_meta in img_metas:
+            ori_shapes = [_['ori_shape'] for _ in img_meta]
+            assert all(shape == ori_shapes[0] for shape in ori_shapes)
+            img_shapes = [_['img_shape'] for _ in img_meta]
+            assert all(shape == img_shapes[0] for shape in img_shapes)
+            pad_shapes = [_['pad_shape'] for _ in img_meta]
+            assert all(shape == pad_shapes[0] for shape in pad_shapes)
+
+        assert 0.0 <= threshold <= 1.0, 'the threshold should be between 0.0 and 1.0.'
+
+        if num_augs == 1:
+            return self.simple_pseudo_label(img[0], img_metas[0], threshold, **kwargs)
+        else:
+            return self.aug_pseudo_label(img, img_metas, threshold, **kwargs)

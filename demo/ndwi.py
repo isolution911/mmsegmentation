@@ -83,9 +83,9 @@ def main():
     # ndwi_binary = np.array(ndwi_binary).astype(np.int64)
     # mask = np.array(mask).astype(np.int64)
     # image_diff = np.zeros_like(mask)
-    # image_diff[ndwi_binary + mask == 255 * 2] = color_water
+    # image_diff[ndwi_binary + mask == 255 * 2] = 0 * 1 + 255 * 256 + 0 * 65536
     # image_diff[ndwi_binary - mask == 255] = 255 * 1 + 0 * 256 + 0 * 65536
-    # image_diff[ndwi_binary - mask == -255] = 0 * 1 + 255 * 256 + 0 * 65536
+    # image_diff[ndwi_binary - mask == -255] = 0 * 1 + 0 * 256 + 255 * 65536
     # image_r = image_diff % 256
     # image_g = (image_diff // 256) % 256
     # image_b = image_diff // 65536
