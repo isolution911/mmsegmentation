@@ -118,6 +118,8 @@ demo/images
 demo/videos
 inputs
 outputs
+unlabeled
+pseudo
 
 # Pytorch
 *.pth

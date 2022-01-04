@@ -39,9 +39,13 @@ def main():
             in_path = osp.join(in_dir, split, image_name)
             out_path = osp.join(out_dir, split, f'{image_id}.png')
             print(f'converting {in_path} to {out_path} ...')
-            tif_nirrgb = TIFF.open(in_path, mode='r')
-            image_nirrgb = tif_nirrgb.read_image()
-            nir, r, g, b = cv2.split(image_nirrgb)
+            # # load .tif
+            # tif_nirrgb = TIFF.open(in_path, mode='r')
+            # image_nirrgb = tif_nirrgb.read_image()
+            # nir, r, g, b = cv2.split(image_nirrgb)
+            # load .png
+            image_nirrgb = cv2.imread(in_path, cv2.IMREAD_UNCHANGED)
+            g, r, nir, b = cv2.split(image_nirrgb)
             np.seterr(divide='ignore', invalid='ignore')
             nir = nir.astype(float)
             g = g.astype(float)
@@ -50,7 +54,7 @@ def main():
             ndwi2mask = 255 * np.ones_like(ndwi, dtype=np.uint8)
             ndwi2mask[ndwi <= low] = 0
             ndwi2mask[ndwi >= high] = 1
-            cv2.imread(out_path, ndwi2mask)
+            cv2.imwrite(out_path, ndwi2mask)
 
     print('Done!')
 
