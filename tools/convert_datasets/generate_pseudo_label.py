@@ -18,7 +18,7 @@ def main():
     parser.add_argument('-o', '--output_dir', help='Directory of output pseudo label(s)')
     parser.add_argument('-t', '--threshold', type=float, default=0.9,
                         help='Threshold to generate pseudo label. In [0, 1] range.')
-    parser.add_argument('--device', default='cuda:9', help='Device used for inference')
+    parser.add_argument('--device', default='cuda:0', help='Device used for inference')
     args = parser.parse_args()
 
     # build the model from a config file and a checkpoint file
@@ -29,8 +29,9 @@ def main():
         mmcv.mkdir_or_exist(osp.join(args.output_dir, split))
         split_list = os.listdir(osp.join(args.input_dir, split))
         for image_name in split_list:
-            src_image_path = osp.join(args.input_dir, split, image_name)
-            dst_image_path = osp.join(args.output_dir, split, image_name)
+            image_id = osp.splitext(image_name)[0]
+            src_image_path = osp.join(args.input_dir, split, f'{image_id}.jpg')
+            dst_image_path = osp.join(args.output_dir, split, f'{image_id}.png')
             print(f'generating pseudo label from {src_image_path} to {dst_image_path} ...')
             result = generate_pseudo_label(model, src_image_path, threshold=args.threshold)[0]
             cv2.imwrite(dst_image_path, result)

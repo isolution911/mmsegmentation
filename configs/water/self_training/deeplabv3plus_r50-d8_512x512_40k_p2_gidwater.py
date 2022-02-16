@@ -24,4 +24,4 @@ data = dict(
         img_dir='img_dir/val',
         ann_dir='label2mask/val'))
 
-work_dir = './work_dirs/water/deeplabv3plus_r50-d8_512x512_40k_p1t0.9_gidwater'
+work_dir = './work_dirs/water/self_training/deeplabv3plus_r50-d8_512x512_40k_p2_gidwater'

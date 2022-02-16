@@ -34,7 +34,7 @@ def add_pseudo_parser(subparsers):
     parser_pseudo.add_argument('img_dir', type=str, help='the directory of images')
     parser_pseudo.add_argument('label_dir', type=str, help='the directory of labels')
     parser_pseudo.add_argument('--threshold', type=float, default=0.5, help='the threshold to generate pseudo label')
-    parser_pseudo.add_argument('--device', type=str, default='cuda:9', help='device used for inference')
+    parser_pseudo.add_argument('--device', type=str, default='cuda:0', help='device used for inference')
     parser_pseudo.set_defaults(func=pseudo)
 
 
